@@ -1,33 +1,27 @@
-// Import the page's CSS. Webpack will know what to do with it.
 import "../stylesheets/app.css";
 
-// Import libraries we need.
 import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract'
 
-// Import our contract artifacts and turn them into usable abstractions.
-import lottotoken_artifacts from '../../build/contracts/LottoToken.json'
+import lottotoken_artifacts from '../../build/contracts/Lotto.json'
+//import lottosale_artifacts from '../../build/contracts/LottoTokenSale.json'
 
-// MetaCoin is our usable abstraction, which we'll use through the code below.
 const LottoToken = contract(lottotoken_artifacts);
 
-// The following code is simple to show off interacting with your contracts.
-// As your needs grow you will likely need to change its form and structure.
-// For application bootstrapping, check out window.addEventListener below.
-var accounts;
-var account;
+let accounts;
+let account;
 let networkId;
 let ltt;
 
 window.App = {
   start: function() {
-    var self = this;
+    let self = this;
 
-    // Bootstrap the MetaCoin abstraction for Use.
+    // 해당 컨트렉트를 통신할  provider를 연결합니다.
     LottoToken.setProvider(web3.currentProvider);
+    //LottoTokenSale.setProvider(web3.currentProvider);
 
     web3.version.getNetwork((err, netId) => {
-        console.log(netId);
         let net_element = document.getElementById("net");
         let networkName = '';
 
@@ -48,31 +42,28 @@ window.App = {
                 networkName = "Kovan";
                 break;
             default:
-                networkName = "Unknown";
+                networkName = "로컬";
         }
         net_element.innerHTML = networkName;
     });
 
 
-    // Get the initial account balance so it can be displayed.
     web3.eth.getAccounts(function(err, accs) {
       if (err != null) {
         alert("There was an error fetching your accounts.");
         return;
       }
-
       if (accs.length == 0) {
-        alert("Couldn't get any accounts! Make sure your Ethereum client is configured correctly.");
+        alert("지갑 계정의 주소가 0개입니다. 다시 확인해주시기 바랍니다.");
         return;
       }
-
       accounts = accs;
       account = accounts[0];
-
-      console.log(accounts, account);
-
-      self.refreshBalance();
-
+      LottoToken.deployed().then(function(instance) {
+        ltt = instance;
+        self.refreshBalance();
+        self.totalBalance();
+      })
     });
   },
 
@@ -84,47 +75,66 @@ window.App = {
   refreshBalance: function() {
     const self = this;
 
-    LottoToken.deployed().then(function(instance) {
-      ltt = instance;
+    ltt.balanceOf.call(account)
+       .then(function(value) {
+         let balance_element = document.getElementById("balance");
+         balance_element.innerHTML = value.valueOf();
 
-      self.totalBalance();
-      return ltt.balanceOf.call(account);
-    }).then(function(value) {
-      var balance_element = document.getElementById("balance");
-      balance_element.innerHTML = value.valueOf();
-
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error getting balance; see log.");
-    });
+       }).catch(function(e) {
+         console.log(e);
+         self.setStatus("계정 호출 에러 발생! 로그 확인 요망");
+       });
   },
 
   totalBalance: function(){
       ltt.totalSupply.call().then(function(value){
-          console.log(value, value.toString(), '총금액')
+          console.log(value, value.toString(), '총 코인 개수')
       });
-  }
+  },
 
-  /*sendCoin: function() {
-    var self = this;
+  //코인 보내기
+  sendCoin: function() {
+    let self = this;
+    let amount = parseInt(document.getElementById("amount").value);
+    let receiver = document.getElementById("receiver").value;
 
-    var amount = parseInt(document.getElementById("amount").value);
-    var receiver = document.getElementById("receiver").value;
+    this.setStatus("전송 대기중");
 
-    this.setStatus("Initiating transaction... (please wait)");
-
-    var meta;
+    let ltt;
       LottoToken.deployed().then(function(instance) {
-      meta = instance;
-      return meta.sendCoin(receiver, amount, {from: account});
+      ltt = instance;
+      return ltt.transfer(receiver, amount, {from: account});
     }).then(function() {
-      self.setStatus("Transaction complete!");
+      self.setStatus("전송 완료");
       self.refreshBalance();
     }).catch(function(e) {
       console.log(e);
-      self.setStatus("Error sending coin; see log.");
+      self.setStatus("에러 발생! 로그 확인 요망");
     });
-  }*/
+  },
+
+  //로또 게임 만들기
+  _createLottoGame: function() {
+      let self = this;
+      let name = document.getElementById("freceiver").value;
+      ltt.createLottoGame(name, {from: account, gas: 27000}).then(function(value){
+          console.log(value);
+      })
+
+  },
+
+  //게임 상세 보기
+  detailGame: function(){
+      let self = this;
+      let gameId = parseInt(document.getElementById("gameId").value);
+      ltt.detailGameOf.call(gameId).then(function(game){
+            console.log(game);
+      })
+  }
+
+
+
+
 };
 
 window.addEventListener('load', function() {
@@ -133,7 +143,7 @@ window.addEventListener('load', function() {
     window.web3 = new Web3(web3.currentProvider);
   } else {
     console.warn("No web3 detected. Falling back to http://127.0.0.1:9545. You should remove this fallback when you deploy live, as it's inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask");
-    window.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7574"));
+    window.web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
   }
 
   App.start();

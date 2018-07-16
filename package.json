@@ -7,7 +7,7 @@
     "build": "webpack",
     "dev": "webpack-dev-server --hot",
     "test": "truffle test",
-    "compile": "truffle compile",
+    "compile": "truffle  compile",
     "migrate:dev": "truffle migrate --reset --network development",
     "migrate:test": "truffle migrate --reset --network testnet"
   },

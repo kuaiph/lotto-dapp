@@ -1,8 +1,8 @@
-var LottoToken = artifacts.require("LottoToken");
+var Lotto = artifacts.require("Lotto");
 var LottoTokenSale = artifacts.require("LottoTokenSale");
 
 module.exports = function(deployer) {
-    deployer.deploy(LottoToken).then(function(){
-        deployer.deploy(LottoTokenSale, LottoToken.address);
+    deployer.deploy(Lotto).then(function(){
+        deployer.deploy(LottoTokenSale, Lotto.address);
     });
 };

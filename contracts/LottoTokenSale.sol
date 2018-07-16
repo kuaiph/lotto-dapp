@@ -1,25 +1,25 @@
 pragma solidity ^0.4.24;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import './LottoToken.sol';
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './Lotto.sol';
 
-contract LottoTokenSale {
+contract LottoTokenSale is Ownable {
 
     using SafeMath for uint256;
+
+    event FundTransfer(address backer, uint amount);
 
     uint8 public constant decimals = 18; //1 ether = 10**18 wei
     uint public constant LTT_PER_WEI = 1 * (10 ** uint256(decimals)); // 1wei == 1LTT
     uint public constant HARD_CAP = 300000000;
-
     uint public lttTotalRaised = 0;
-
     bool private closed = false;
+    ERC20 public token;
 
-    LottoToken public token;
-
-    constructor(LottoToken _token) public {
+    constructor(address _token) public Ownable() {
         require(_token != address(0));
-        token = _token;
+        token = ERC20(_token);
     }
 
     function() external payable {
@@ -40,7 +40,14 @@ contract LottoTokenSale {
             msg.sender.transfer(weisToRefund);
         }
 
+        owner.transfer(msg.value);
         token.transfer(msg.sender, lttToTransfer);
+
+        emit FundTransfer(msg.sender, lttToTransfer);
+    }
+
+    function getTotalRaised() public view returns(uint) {
+        return lttTotalRaised;
     }
 
 }

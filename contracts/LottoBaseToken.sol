@@ -2,10 +2,20 @@ pragma solidity ^0.4.24;
 
 import 'zeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './LottoTokenConfig.sol';
 
-contract LottoBaseToken is StandardToken, Ownable {
+contract LottoBaseToken is StandardToken, LottoTokenConfig, Ownable {
 
     bool private opened = false;
+
+    constructor() public {
+        totalSupply_ = INITIAL_SUPPLY;
+        balances[msg.sender] = INITIAL_SUPPLY;
+        open();
+
+        //EIP20
+        emit Transfer(0x0, msg.sender, totalSupply_);
+    }
 
     modifier onlyOpened() {
         require(opened);

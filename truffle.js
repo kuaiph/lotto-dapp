@@ -9,8 +9,8 @@ var infura_apikey = "M67G281JXASNBDZG2NKHATAZX7XKS44RA5";
 module.exports = {
     networks: {
         development: {
-            host: "127.0.0.1",
-            port: 7545,
+            host: "127.0.0.1", // http://localhost:7545
+            port: 8545,
             network_id: "*" // Match any network id
         },
         testnet: {
