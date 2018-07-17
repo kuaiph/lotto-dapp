@@ -21,7 +21,7 @@ contract LottoGameFactory is LottoBaseToken {
     uint createGameLTTPrice = 100; //LTT 게임 생성시 필요 코인 양
 
     // 게임
-    struct LottoGame {
+    struct  LottoGame  {
         string name;  // 해당 게임의 이름을 정할수 있습니다.
         State state;
         address winner; //해당 게임의 승리자입니다.
@@ -38,7 +38,6 @@ contract LottoGameFactory is LottoBaseToken {
         byes type; //금액 지불 방식 (1명, 절반)
         uint maxUserCount //참여 최대 인원
     }*/
-
     mapping (uint => address) public lottoGameManager; //게임의 진행자
     LottoGame[] public lottoGames; //로또 게임
 
@@ -49,26 +48,9 @@ contract LottoGameFactory is LottoBaseToken {
      *  @param _name 로또 게임의 이름
      */
     function createLottoGame(string _name) public returns (uint){
-        require(createGameLTTPrice >= balances[msg.sender]);
+        require(createGameLTTPrice <= balances[msg.sender]);
         transfer(owner, createGameLTTPrice);
         return _createLottoGame(_name, endDay7);
-    }
-
-    /**
-     *  @dev 게임의 상세 정보를 가져옵니다.
-     *  @param _gameId 로또 게임의 번호
-     */
-    function detailGameOf(uint _gameId) public view
-        returns(
-            string,
-            State,
-            address,
-            uint256 ,
-            uint256 ) {
-
-        LottoGame memory game = lottoGames[_gameId];
-
-        return (game.name, game.state, game.winner, game.joinerCount, game.tokenTotalBalance);
     }
 
     /**

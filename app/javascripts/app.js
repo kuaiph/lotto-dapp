@@ -78,7 +78,7 @@ window.App = {
     ltt.balanceOf.call(account)
        .then(function(value) {
          let balance_element = document.getElementById("balance");
-         balance_element.innerHTML = value.valueOf();
+         balance_element.innerHTML = value.toNumber();
 
        }).catch(function(e) {
          console.log(e);
@@ -88,7 +88,7 @@ window.App = {
 
   totalBalance: function(){
       ltt.totalSupply.call().then(function(value){
-          console.log(value, value.toString(), '총 코인 개수')
+          console.log(value, value.valueOf(), '총 코인 개수')
       });
   },
 
@@ -97,10 +97,9 @@ window.App = {
     let self = this;
     let amount = parseInt(document.getElementById("amount").value);
     let receiver = document.getElementById("receiver").value;
+    let ltt;
 
     this.setStatus("전송 대기중");
-
-    let ltt;
       LottoToken.deployed().then(function(instance) {
       ltt = instance;
       return ltt.transfer(receiver, amount, {from: account});
@@ -117,9 +116,14 @@ window.App = {
   _createLottoGame: function() {
       let self = this;
       let name = document.getElementById("freceiver").value;
-      ltt.createLottoGame(name, {from: account, gas: 27000}).then(function(value){
+      this.setStatus("생성 대기중");
+      ltt.createLottoGame(name, {from: account, gas: 227000}).then(function(value){
+          self.setStatus("게임 생성 완료");
           console.log(value);
-      })
+      }).catch(function(e) {
+          console.log(e);
+          self.setStatus("에러 발생! 로그 확인 요망");
+      });
 
   },
 
@@ -127,11 +131,32 @@ window.App = {
   detailGame: function(){
       let self = this;
       let gameId = parseInt(document.getElementById("gameId").value);
-      ltt.detailGameOf.call(gameId).then(function(game){
-            console.log(game);
+      ltt.lottoGames.call(gameId).then(function(game){
+          let gameName = game[0].valueOf()
+          let state = game[1].valueOf()
+          let winner = game[1].valueOf()
+          let joinerCount = game[3].valueOf()
+          let tokenTotalBalance = game[4].valueOf()
+          let createdTimeAt = game[5].toNumber()
+          let gameEndTimeAt = game[6].toNumber()
+          self.setStatus("게임 정보 :<br>" + `이름:${gameName}<br>` + `상태:${state}<br>` + `당첨자:${winner}<br>` + `참여인원:${joinerCount}<br>` + `당첨자:${tokenTotalBalance}<br>` + `총모인금액:${tokenTotalBalance}<br>` + `생성일자:${createdTimeAt}<br>` + `종료일자:${gameEndTimeAt}<br>`);
+      }).catch(function(err){
+          console.log(err);
+          alert("게임이 존재 하지 않습니다.")
       })
-  }
+  },
+  //게임 참여
+  joinGame: function(){
+      let self = this;
+      let gameJoinId = parseInt(document.getElementById("gameJoinId").value);
+      ltt.gameJoin(gameJoinId, {from: account, gas: 67000}).then(function(game){
+          console.log(game);
+      }).catch(function(err){
+          alert("게임 참여가 되지 않았습니다.")
+          console.log(err);
+      })
 
+  }
 
 
 

@@ -7,6 +7,7 @@ import './LottoGameFactory.sol';
 */
 contract LottoGamePlay is LottoGameFactory {
 
+
     //게임 참가 지불 금액
     uint playGameDefaultBalances = 50;
 
@@ -25,8 +26,8 @@ contract LottoGamePlay is LottoGameFactory {
 
     //게임 상태 체크
     modifier gameStateCheck(uint256 _gameId) {
-        require(lottoGames[_gameId].state == State.Playing);
         _gameTimeEnd(_gameId);
+        require(lottoGames[_gameId].state == State.Playing);
         _;
     }
 
@@ -40,13 +41,13 @@ contract LottoGamePlay is LottoGameFactory {
 
         // 1. 유저의 게임참가비만큼 토큰을 감소시킨다.
         // 2. 유저의 게임참가비를 게임의 총 토큰으로 증가시킨다.
-        balances[msg.sender].sub(playGameDefaultBalances);
-        game.tokenTotalBalance.add(playGameDefaultBalances);
+        balances[msg.sender] -= playGameDefaultBalances;
+        game.tokenTotalBalance += playGameDefaultBalances;
         // 3. 게임에 유저를 등록한다.
         // 4. 유저에게 게임 참가 티켓을 발급시켜준다.
         // 5. 게임에 총 참가자 수를 1 증가시킨다.
         lottoGameJoinTicket[_gameId][msg.sender] = playGameDefaultBalances;
-        game.joinerCount.add(1);
+        game.joinerCount++;
         emit gameJoinEvent(msg.sender, playGameDefaultBalances, _gameId);
     }
 
