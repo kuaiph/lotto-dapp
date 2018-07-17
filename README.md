@@ -1,6 +1,6 @@
 # Lotto DApp (Solidity Code) 
 로또 게임 디앱 테스트 입니다. ERC20 interface(feat.zeppelin-solidity) 를 상속 받아 로또에 참여하기 위한 기본 토큰을 구현하였습니다. 
-추후 Lotto Token의 Crowdsale 컨트렉트 Lotto 게임의 가각 고유한 게임을 유지할수 있는 ERC721을 구현하여 작성하 계획입니다.
+추후 Lotto Token의 Crowdsale 컨트렉트 Lotto 게임의 가각 고유한 게임을 유지할수 있는 ERC721을 구현하여 작성할 계획입니다.
 
 <pre>
 ㄴ sale
