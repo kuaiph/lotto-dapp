@@ -2,7 +2,7 @@
 테스트용 로또 DApp입니다. ERC20 interface(feat.zeppelin-solidity) 를 상속 받아 로또에 참여하기 위한 기본 토큰을 구현하였습니다. 
 추후 Lotto Token의 Crowdsale 컨트렉트, Lotto 게임의 가각 고유한 규칙과 특징을 유지할수 있는 ERC721을 구현하여 확장시킬 계획입니다.
 
-![첨부이미지](https://github.com/sinsker/lotto-dapp/tree/master/app/image1.png)
+![첨부이미지](https://github.com/sinsker/lotto-dapp/blob/master/app/image1.png)
 
 <pre>
 ㄴ sale
